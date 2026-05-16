@@ -55,7 +55,7 @@ const Navbar = ({ onLogoPress, activeTab, setActiveTab, navigateTo, searchQuery,
         <Text style={styles.logoIcon}>🎬</Text>
         {!isMobile && (
           <Text style={styles.logoText}>
-            CINE<Text style={styles.logoAccent}>VERSE</Text>
+            MOACIR<Text style={styles.logoAccent}>FILMS</Text>
           </Text>
         )}
       </TouchableOpacity>

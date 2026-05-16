@@ -1,3 +1,4 @@
+## (Projeto feito com auxílio da IA Claude Sonnet 4.6 para fins escolares)
 # 🎬 CineVerse — App de Filmes React Native
 
 Aplicativo de filmes multiplataforma (iOS, Android e Web) construído com **React Native + Expo**.
