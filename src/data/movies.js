@@ -30,7 +30,7 @@ export const MOVIES = [
     image: 'https://br.web.img2.acsta.net/pictures/23/05/08/10/29/0695770.jpg',
     backdrop: 'https://rollingstone.com.br/wp-content/uploads/2023/12/apos-polemica-oppenheimer-filme-sobre-a-criacao-da-bomba-atomica-sera-lancado-no-japao-em-2024-foto-divulgacaouniversal-pictures.jpg',
     color: '#e85d04',
-    featured: false,
+    featured: true,
     videoUrl: 'https://youtu.be/F3OxA9Cz17A?si=DJlys9RCLGnwyNVa',
   },
   {
@@ -183,7 +183,7 @@ export const MOVIES = [
     image: 'https://play-lh.googleusercontent.com/1G0lOdI1MeSz7Mu0AftWdzVUUgYOcIi9WZaVtSuRfPAc3GYIqyJp5TaF6J5qEA5SWOPpDw=w240-h480-rw',
     backdrop: 'https://nerdizmo.ig.com.br/wp-content/uploads/2022/03/resident-evil-hospede-maldito-20-anos-capa.jpg',
     color: '#cc0808',
-    featured: false,
+    featured: true,
     videoUrl: 'https://youtu.be/eEGDRSYEd0E?si=WwxxsT1lRYlN6Oii',
   },
   {
@@ -217,7 +217,7 @@ export const MOVIES = [
     image: 'https://cdn.ome.lt/F_AOGOUAhUNJFS4qHL5h54GFuXU=/253x334/smart/filters:format(webp)/extras/capas/filme_10670.jpg',
     backdrop: 'https://segredosdomundo.r7.com/wp-content/uploads/2020/09/o-auto-da-compadecida-historia-e-personagens-da-obra.jpg',
     color: '#8b611c',
-    featured: false,
+    featured: true,
     videoUrl: 'https://youtu.be/x7ISUk6Y35Q?si=IOkQjrPZIB1S1DTf',
   },
   {
@@ -234,13 +234,17 @@ export const MOVIES = [
     image: 'https://m.media-amazon.com/images/M/MV5BYzFjMzNjOTktNDBlNy00YWZhLWExYTctZDcxNDA4OWVhOTJjXkEyXkFqcGc@._V1_.jpg',
     backdrop: 'https://recreio.com.br/wp-content/uploads/2025/03/um-filme-minecraft-poster-capa.jpg',
     color: '#13a12f',
-    featured: false,
+    featured: true,
     videoUrl: 'https://youtu.be/3IVPHxs4NoM?si=QF4lvrPG93PCt_bU',
   },
 ];
 
 export const CATEGORIES = ['Todos', 'Sci-Fi', 'Drama', 'Horror', 'Romance', 'Biografia', 'Crime', 'Ação', 'Animação', 'Comédia', 'Aventura', 'Fantasia', 'Guerra', 'História', 'Thriller'];
-export const getFeaturedMovie = () => MOVIES.find((m) => m.featured) || MOVIES[0];
+export const getFeaturedMovies = () => {
+  const list = MOVIES.filter((m) => m.featured);
+  return list.length > 0 ? list : [MOVIES[0]];
+};
+export const getFeaturedMovie = () => getFeaturedMovies()[0];
 export const getMoviesByCategory = (category) => {
   if (category === 'Todos') return MOVIES;
   return MOVIES.filter((m) => m.genre.includes(category));

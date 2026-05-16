@@ -9,7 +9,7 @@ import {
 import HeroBanner from '../components/HeroBanner';
 import MovieCard from '../components/MovieCard';
 import CategoryFilter from '../components/CategoryFilter';
-import { MOVIES, CATEGORIES, getFeaturedMovie, getMoviesByCategory } from '../data/movies';
+import { MOVIES, CATEGORIES, getFeaturedMovies, getMoviesByCategory } from '../data/movies';
 import { useFavorites } from '../context/FavoritesContext';
 import { useScrollContext } from '../context/ScrollContext';
 
@@ -20,7 +20,7 @@ const HomeScreen = ({ navigateTo, activeTab, searchQuery, onPlayMovie }) => {
   const { width } = useWindowDimensions();
   const isMobile = width < 768;
 
-  const featuredMovie = getFeaturedMovie();
+  const featuredMovies = getFeaturedMovies();
   const isSearching = searchQuery && searchQuery.trim().length > 0;
 
   const displayedMovies = useMemo(() => {
@@ -60,7 +60,7 @@ const HomeScreen = ({ navigateTo, activeTab, searchQuery, onPlayMovie }) => {
     >
       {/* Banner só aparece na aba home e sem busca ativa */}
       {activeTab === 'home' && !isSearching && (
-        <HeroBanner movie={featuredMovie} onPress={handleMoviePress} onPlay={onPlayMovie} />
+        <HeroBanner movies={featuredMovies} onPress={handleMoviePress} onPlay={onPlayMovie} />
       )}
 
       <View style={styles.sectionHeader}>
