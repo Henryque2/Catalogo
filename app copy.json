@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "MoacirFilms",
+    "slug": "moacirfilms",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "backgroundColor": "#0a0a0f"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0a0a0f"
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "backgroundColor": "#0a0a0f"
+    },
+    "platforms": ["ios", "android", "web"]
+  }
+}

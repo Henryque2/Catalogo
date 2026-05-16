@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Animated, Platform, View } from 'react-native';
+import { StyleSheet, Animated, Platform, View, BackHandler } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FavoritesProvider } from './src/context/FavoritesContext';
-import { ScrollProvider, useScrollContext, NAVBAR_CONTENT_HEIGHT, FOOTER_HEIGHT } from './src/context/ScrollContext';
+import { ScrollProvider, useScrollContext, NAVBAR_CONTENT_HEIGHT } from './src/context/ScrollContext';
 import HomeScreen from './src/screens/HomeScreen';
 import DetailScreen from './src/screens/DetailScreen';
 import Navbar from './src/components/Navbar';
@@ -19,12 +19,41 @@ function AppInner() {
   const [playerMovie, setPlayerMovie] = useState(null);
 
   const insets = useSafeAreaInsets();
-  const { navbarTranslate, footerTranslate, contentPaddingTop, contentPaddingBottom, setNavbarTotalHeight } = useScrollContext();
+  const {
+    navbarTranslate,
+    footerTranslate,
+    contentPaddingTop,
+    contentPaddingBottom,
+    setNavbarTotalHeight,
+  } = useScrollContext();
 
   useEffect(() => {
     const totalHeight = NAVBAR_CONTENT_HEIGHT + insets.top;
     setNavbarTotalHeight(totalHeight);
   }, [insets.top]);
+
+  // Botão voltar nativo do Android
+  useEffect(() => {
+    if (Platform.OS !== 'android') return;
+
+    const onBackPress = () => {
+      // Se o player estiver aberto, fecha ele
+      if (playerVisible) {
+        closePlayer();
+        return true; // consome o evento
+      }
+      // Se estiver na tela de detalhes, volta para home
+      if (currentScreen === 'detail') {
+        goHome();
+        return true; // consome o evento
+      }
+      // Se estiver na home, deixa o Android fechar o app normalmente
+      return false;
+    };
+
+    const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+    return () => subscription.remove();
+  }, [currentScreen, playerVisible]);
 
   const navigateTo = (screen, movie = null) => {
     setCurrentScreen(screen);
