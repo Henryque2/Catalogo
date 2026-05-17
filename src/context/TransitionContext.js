@@ -4,72 +4,99 @@ import { Animated, Dimensions, Easing } from 'react-native';
 const TransitionContext = createContext(null);
 
 export const TransitionProvider = ({ children }) => {
-  const { width: SW, height: SH } = Dimensions.get('window');
+  const getScreen = () => Dimensions.get('window');
 
-  // Origem da animação (posição e tamanho do card tocado)
+  const progress  = useRef(new Animated.Value(0)).current; // 0=card, 1=fullscreen
+  const contentOp = useRef(new Animated.Value(0)).current;
+
+  // Guarda origem para calcular os transforms
   const origin = useRef({ x: 0, y: 0, w: 0, h: 0 });
 
-  // Valores animados
-  const animX      = useRef(new Animated.Value(0)).current;
-  const animY      = useRef(new Animated.Value(0)).current;
-  const animW      = useRef(new Animated.Value(0)).current;
-  const animH      = useRef(new Animated.Value(0)).current;
-  const animRadius = useRef(new Animated.Value(12)).current;
-  const animOpacity= useRef(new Animated.Value(0)).current;
-  const contentOp  = useRef(new Animated.Value(0)).current;
+  // Valores derivados interpolados a partir de `progress`
+  // Calculados no momento do expand com os valores reais
+  const translateX = useRef(new Animated.Value(0)).current;
+  const translateY = useRef(new Animated.Value(0)).current;
+  const scaleX     = useRef(new Animated.Value(1)).current;
+  const scaleY     = useRef(new Animated.Value(1)).current;
+  const overlayOp  = useRef(new Animated.Value(0)).current;
 
   const [visible, setVisible] = useState(false);
-  const [movie, setMovie]     = useState(null);
-  const [phase, setPhase]     = useState('idle'); // idle | expanding | open | collapsing
+  const [movie,   setMovie]   = useState(null);
+  const [phase,   setPhase]   = useState('idle');
 
   const expand = useCallback((cardLayout, selectedMovie, onDone) => {
-    const { x, y, width, height } = cardLayout;
-    origin.current = { x, y, w: width, h: height };
+    const { x, y, width: cw, height: ch } = cardLayout;
+    const { width: SW, height: SH } = getScreen();
 
-    // Reseta para o tamanho/posição do card
-    animX.setValue(x);
-    animY.setValue(y);
-    animW.setValue(width);
-    animH.setValue(height);
-    animRadius.setValue(12);
-    animOpacity.setValue(1);
+    origin.current = { x, y, w: cw, h: ch };
+
+    // O overlay parte do centro da tela em tamanho full,
+    // e usamos scaleX/scaleY + translateX/translateY para simular
+    // que está no lugar do card.
+    // cardCenter → screenCenter delta:
+    const cardCX = x + cw / 2;
+    const cardCY = y + ch / 2;
+    const screenCX = SW / 2;
+    const screenCY = SH / 2;
+
+    const startTX = cardCX - screenCX;
+    const startTY = cardCY - screenCY;
+    const startSX = cw / SW;
+    const startSY = ch / SH;
+
+    // Posiciona no card
+    translateX.setValue(startTX);
+    translateY.setValue(startTY);
+    scaleX.setValue(startSX);
+    scaleY.setValue(startSY);
+    overlayOp.setValue(1);
     contentOp.setValue(0);
 
     setMovie(selectedMovie);
     setVisible(true);
     setPhase('expanding');
 
-    const DURATION = 420;
-    const EASE = Easing.out(Easing.cubic);
+    const DURATION = 320;
+    const EASE = Easing.out(Easing.bezier(0.25, 0.46, 0.45, 0.94));
 
     Animated.parallel([
-      Animated.timing(animX,      { toValue: 0,  duration: DURATION, easing: EASE, useNativeDriver: false }),
-      Animated.timing(animY,      { toValue: 0,  duration: DURATION, easing: EASE, useNativeDriver: false }),
-      Animated.timing(animW,      { toValue: SW, duration: DURATION, easing: EASE, useNativeDriver: false }),
-      Animated.timing(animH,      { toValue: SH, duration: DURATION, easing: EASE, useNativeDriver: false }),
-      Animated.timing(animRadius, { toValue: 0,  duration: DURATION, easing: EASE, useNativeDriver: false }),
+      Animated.timing(translateX, { toValue: 0,  duration: DURATION, easing: EASE, useNativeDriver: true }),
+      Animated.timing(translateY, { toValue: 0,  duration: DURATION, easing: EASE, useNativeDriver: true }),
+      Animated.timing(scaleX,     { toValue: 1,  duration: DURATION, easing: EASE, useNativeDriver: true }),
+      Animated.timing(scaleY,     { toValue: 1,  duration: DURATION, easing: EASE, useNativeDriver: true }),
     ]).start(() => {
       setPhase('open');
-      Animated.timing(contentOp, { toValue: 1, duration: 200, useNativeDriver: true }).start();
+      Animated.timing(contentOp, { toValue: 1, duration: 180, useNativeDriver: true }).start();
       onDone?.();
     });
-  }, [SW, SH]);
+  }, []);
 
   const collapse = useCallback((onDone) => {
     setPhase('collapsing');
-    const { x, y, w, h } = origin.current;
-    const DURATION = 360;
-    const EASE = Easing.in(Easing.cubic);
+    const { x, y, w: cw, h: ch } = origin.current;
+    const { width: SW, height: SH } = getScreen();
+
+    const cardCX = x + cw / 2;
+    const cardCY = y + ch / 2;
+    const screenCX = SW / 2;
+    const screenCY = SH / 2;
+
+    const endTX = cardCX - screenCX;
+    const endTY = cardCY - screenCY;
+    const endSX = cw / SW;
+    const endSY = ch / SH;
+
+    const DURATION = 280;
+    const EASE = Easing.in(Easing.bezier(0.55, 0.055, 0.675, 0.19));
 
     Animated.sequence([
-      Animated.timing(contentOp, { toValue: 0, duration: 120, useNativeDriver: true }),
+      Animated.timing(contentOp, { toValue: 0, duration: 100, useNativeDriver: true }),
       Animated.parallel([
-        Animated.timing(animX,      { toValue: x,  duration: DURATION, easing: EASE, useNativeDriver: false }),
-        Animated.timing(animY,      { toValue: y,  duration: DURATION, easing: EASE, useNativeDriver: false }),
-        Animated.timing(animW,      { toValue: w,  duration: DURATION, easing: EASE, useNativeDriver: false }),
-        Animated.timing(animH,      { toValue: h,  duration: DURATION, easing: EASE, useNativeDriver: false }),
-        Animated.timing(animRadius, { toValue: 12, duration: DURATION, easing: EASE, useNativeDriver: false }),
-        Animated.timing(animOpacity,{ toValue: 0,  duration: DURATION, easing: EASE, useNativeDriver: false }),
+        Animated.timing(translateX, { toValue: endTX, duration: DURATION, easing: EASE, useNativeDriver: true }),
+        Animated.timing(translateY, { toValue: endTY, duration: DURATION, easing: EASE, useNativeDriver: true }),
+        Animated.timing(scaleX,     { toValue: endSX, duration: DURATION, easing: EASE, useNativeDriver: true }),
+        Animated.timing(scaleY,     { toValue: endSY, duration: DURATION, easing: EASE, useNativeDriver: true }),
+        Animated.timing(overlayOp,  { toValue: 0,     duration: DURATION, easing: EASE, useNativeDriver: true }),
       ]),
     ]).start(() => {
       setVisible(false);
@@ -82,7 +109,7 @@ export const TransitionProvider = ({ children }) => {
   return (
     <TransitionContext.Provider value={{
       expand, collapse,
-      animX, animY, animW, animH, animRadius, animOpacity, contentOp,
+      translateX, translateY, scaleX, scaleY, overlayOp, contentOp,
       visible, movie, phase,
     }}>
       {children}

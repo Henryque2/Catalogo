@@ -19,7 +19,7 @@ const Footer = () => {
       <Text style={styles.footerLogo}>
         🎬 MOACIR<Text style={styles.footerLogoAccent}>FILMS</Text>
       </Text>
-      <Text style={styles.footerCopy}>© 2026 MoacirFilms · Que a força do cinema esteja sempre com você</Text>
+      <Text style={styles.footerCopy}>© 2026 MoacirFilms · Que a força do cinema esteja com você</Text>
       <View style={styles.footerLinks}>
         <Text style={styles.footerLink}>Sobre</Text>
         <Text style={styles.footerDot}>·</Text>

@@ -6,7 +6,6 @@ import { FavoritesProvider, useFavorites } from './src/context/FavoritesContext'
 import { ScrollProvider, useScrollContext, NAVBAR_CONTENT_HEIGHT } from './src/context/ScrollContext';
 import { TransitionProvider, useTransition } from './src/context/TransitionContext';
 import HomeScreen from './src/screens/HomeScreen';
-import ProfileScreen from './src/screens/ProfileScreen';
 import Navbar from './src/components/Navbar';
 import Footer from './src/components/Footer';
 import VideoPlayer from './src/components/VideoPlayer';
@@ -20,7 +19,7 @@ function AppInner() {
   const [playerMovie, setPlayerMovie] = useState(null);
 
   const insets = useSafeAreaInsets();
-  const { theme, loaded } = useFavorites();
+  const { loaded } = useFavorites();
   const { visible: transitionVisible, collapse, phase } = useTransition();
   const {
     navbarTranslate, footerTranslate,
@@ -40,7 +39,6 @@ function AppInner() {
       if (playerVisible) { closePlayer(); return true; }
       // Se o overlay de transição está aberto, fecha com animação
       if (transitionVisible) { collapse(() => setCurrentScreen('home')); return true; }
-      if (currentScreen === 'profile') { goHome(); return true; }
       return false;
     };
     const sub = BackHandler.addEventListener('hardwareBackPress', onBackPress);
@@ -62,18 +60,17 @@ function AppInner() {
   const openPlayer = (movie) => { setPlayerMovie(movie); setPlayerVisible(true); };
   const closePlayer = () => { setPlayerVisible(false); setPlayerMovie(null); };
 
-  const isLight = theme === 'light';
-  const bgColor = isLight ? '#f0f0f5' : '#0a0a0f';
+  const bgColor = '#0a0a0f';
 
   if (!loaded) return <View style={{ flex: 1, backgroundColor: '#0a0a0f' }} />;
 
   return (
     <View style={[styles.root, { backgroundColor: bgColor }]}>
-      <StatusBar style={isLight ? 'dark' : 'light'} backgroundColor={isLight ? '#fff' : '#0a0a0f'} />
+      <StatusBar style="light" backgroundColor="#0a0a0f" />
 
       <Animated.View style={[styles.container, { backgroundColor: bgColor }]}>
         <Animated.View style={[styles.navbarWrapper, { transform: [{ translateY: navbarTranslate }] }]}>
-          <View style={{ height: insets.top, backgroundColor: isLight ? 'rgba(255,255,255,0.98)' : 'rgba(10,10,15,0.98)' }} />
+          <View style={{ height: insets.top, backgroundColor: 'rgba(10,10,15,0.98)' }} />
           <Navbar
             onLogoPress={goHome}
             activeTab={activeTab}
@@ -92,9 +89,6 @@ function AppInner() {
               searchQuery={searchQuery}
               onPlayMovie={openPlayer}
             />
-          )}
-          {currentScreen === 'profile' && (
-            <ProfileScreen navigateTo={navigateTo} />
           )}
         </Animated.View>
 

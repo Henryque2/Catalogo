@@ -1,10 +1,14 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Animated, StyleSheet, useWindowDimensions } from 'react-native';
 
-const SkeletonCard = () => {
-  const { width } = useWindowDimensions();
+const SkeletonCard = ({ containerWidth }) => {
+  const { width: screenWidth } = useWindowDimensions();
+  const width = containerWidth || screenWidth;
   const isMobile = width < 768;
-  const cardWidth = isMobile ? (width - 48) / 2 : 180;
+  const GAP = 12;
+  const PADDING = isMobile ? 24 : 48;
+  const columns = isMobile ? 2 : Math.floor((width - PADDING) / (180 + GAP));
+  const cardWidth = (width - PADDING - GAP * (columns - 1)) / columns;
   const cardHeight = cardWidth * 1.5;
   const shimmer = useRef(new Animated.Value(0)).current;
 

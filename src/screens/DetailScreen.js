@@ -11,13 +11,11 @@ import {
   Platform,
 } from 'react-native';
 import { useFavorites } from '../context/FavoritesContext';
-import StarRating from '../components/StarRating';
 import { useScrollContext } from '../context/ScrollContext';
 import { useTransition } from '../context/TransitionContext';
 
 const DetailScreen = ({ movie, onBack, onPlayMovie, insideOverlay = false }) => {
-  const { toggleFavorite, isFavorite, toggleWatched, isWatched, rateMovie, getRating } = useFavorites();
-  const watched = isWatched(movie.id);
+  const { toggleFavorite, isFavorite } = useFavorites();
   const { handleScroll } = useScrollContext();
   const { collapse } = useTransition();
   const handleBack = insideOverlay ? () => collapse() : onBack;
@@ -118,26 +116,10 @@ const DetailScreen = ({ movie, onBack, onPlayMovie, insideOverlay = false }) => 
             </Text>
           </TouchableOpacity>
         </View>
-
-        {/* linha 2: Compartilhar + Assistido */}
-        <View style={styles.actionRowBottom}>
-          <TouchableOpacity style={styles.shareBtn} activeOpacity={0.8}>
-            <Text style={styles.shareBtnText}>↗  Compartilhar</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.watchedBtn, watched && styles.watchedBtnActive]}
-            onPress={() => toggleWatched(movie)}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.watchedBtnText}>{watched ? '✓ Assistido' : '○ Marcar como assistido'}</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Avaliação do usuário */}
-        <View style={styles.ratingSection}>
-          <Text style={styles.ratingSectionTitle}>Sua avaliação</Text>
-          <StarRating movieId={movie.id} size={28} />
-        </View>
+        {/* linha 2: Compartilhar */}
+        <TouchableOpacity style={styles.shareBtn} activeOpacity={0.8}>
+          <Text style={styles.shareBtnText}>↗  Compartilhar</Text>
+        </TouchableOpacity>
 
         {/* Stats row */}
         <View style={styles.statsRow}>
@@ -377,44 +359,8 @@ const styles = StyleSheet.create({
   favoriteLargeTextActive: {
     color: '#ff6b7a',
   },
-  actionRowBottom: {
-    flexDirection: 'row',
-    gap: 12,
-    marginBottom: 28,
-    flexWrap: 'wrap',
-  },
-  watchedBtn: {
-    flex: 1,
-    backgroundColor: 'rgba(255,255,255,0.06)',
-    paddingHorizontal: 18,
-    paddingVertical: 12,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  watchedBtnActive: {
-    backgroundColor: 'rgba(34,197,94,0.15)',
-    borderColor: 'rgba(34,197,94,0.4)',
-  },
-  watchedBtnText: {
-    color: 'rgba(255,255,255,0.7)',
-    fontWeight: '600',
-    fontSize: 14,
-  },
-  ratingSection: {
-    marginBottom: 28,
-    gap: 10,
-  },
-  ratingSectionTitle: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '800',
-    letterSpacing: -0.3,
-  },
   shareBtn: {
-    flex: 1,
+    marginBottom: 28,
     backgroundColor: 'rgba(255,255,255,0.06)',
     paddingHorizontal: 18,
     paddingVertical: 12,

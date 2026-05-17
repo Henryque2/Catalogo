@@ -6,7 +6,7 @@ import {
 import { useFavorites } from '../context/FavoritesContext';
 
 const Navbar = ({ onLogoPress, activeTab, setActiveTab, navigateTo, searchQuery, setSearchQuery }) => {
-  const { favorites, profile } = useFavorites();
+  const { favorites } = useFavorites();
   const { width } = useWindowDimensions();
   const isMobile = width < 768;
   const [searchOpen, setSearchOpen] = useState(false);
@@ -17,17 +17,12 @@ const Navbar = ({ onLogoPress, activeTab, setActiveTab, navigateTo, searchQuery,
     { id: 'home',      label: 'Início',    icon: '🏠' },
     { id: 'favorites', label: 'Favoritos', icon: '❤️', count: favorites.length },
     { id: 'trending',  label: 'Em Alta',   icon: '🔥' },
-    { id: 'profile',   label: 'Perfil',    icon: profile.avatar },
   ];
 
   const handleTabPress = (tabId) => {
     setActiveTab(tabId);
-    if (tabId === 'profile') {
-      navigateTo('profile');
-    } else {
-      navigateTo('home');
-      if (tabId === 'home') onLogoPress();
-    }
+    navigateTo('home');
+    if (tabId === 'home') onLogoPress();
   };
 
   const openSearch = () => {
@@ -83,8 +78,7 @@ const Navbar = ({ onLogoPress, activeTab, setActiveTab, navigateTo, searchQuery,
               ) : (
                 <>
                   <Text style={[styles.navItemText, activeTab === item.id && styles.navItemTextActive]}>
-                    {item.id === 'profile' ? `${item.icon} ${item.label}` : item.label}
-                    {item.count > 0 ? ` (${item.count})` : ''}
+                    {item.label}{item.count > 0 ? ` (${item.count})` : ''}
                   </Text>
                   {activeTab === item.id && <View style={styles.navIndicator} />}
                 </>
@@ -138,7 +132,7 @@ const styles = StyleSheet.create({
   logoAccent: { color: '#e50914' },
   navItems: { flexDirection: 'row', alignItems: 'center', gap: 4, flex: 1, justifyContent: 'center' },
   navItemsMobile: { gap: 0 },
-  navItem: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8, alignItems: 'center', position: 'relative' },
+  navItem: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 8, alignItems: 'center', position: 'relative' },
   navItemActive: { backgroundColor: 'rgba(229,9,20,0.12)' },
   navItemText: { color: 'rgba(255,255,255,0.55)', fontSize: 14, fontWeight: '500' },
   navItemTextActive: { color: '#fff', fontWeight: '700' },

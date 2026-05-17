@@ -38,7 +38,6 @@ const HomeScreen = ({ navigateTo, activeTab, searchQuery, onPlayMovie }) => {
     }
     if (activeTab === 'favorites') return favorites;
     if (activeTab === 'trending') return [...MOVIES].sort((a, b) => b.rating - a.rating);
-    if (activeTab === 'watched') return [];
     return getMoviesByCategory(selectedCategory);
   }, [activeTab, selectedCategory, favorites, searchQuery, isSearching]);
 
@@ -78,7 +77,7 @@ const HomeScreen = ({ navigateTo, activeTab, searchQuery, onPlayMovie }) => {
       {loading ? (
         <View style={[styles.grid, { paddingHorizontal: isMobile ? 12 : 24 }]}>
           {Array.from({ length: skeletonCount }).map((_, i) => (
-            <SkeletonCard key={i} />
+            <SkeletonCard key={i} containerWidth={width} />
           ))}
         </View>
       ) : displayedMovies.length === 0 ? (
@@ -98,7 +97,7 @@ const HomeScreen = ({ navigateTo, activeTab, searchQuery, onPlayMovie }) => {
       ) : (
         <View style={[styles.grid, { paddingHorizontal: isMobile ? 12 : 24 }]}>
           {displayedMovies.map((movie, i) => (
-            <MovieCard key={movie.id} movie={movie} onPress={handleMoviePress} index={i} />
+            <MovieCard key={movie.id} movie={movie} onPress={handleMoviePress} index={i} containerWidth={width} />
           ))}
         </View>
       )}

@@ -6,15 +6,18 @@ import {
 import { useFavorites } from '../context/FavoritesContext';
 import { useTransition } from '../context/TransitionContext';
 
-const MovieCard = ({ movie, onPress, index = 0 }) => {
-  const { toggleFavorite, isFavorite, isWatched } = useFavorites();
+const MovieCard = ({ movie, onPress, index = 0, containerWidth }) => {
+  const { toggleFavorite, isFavorite } = useFavorites();
   const { expand } = useTransition();
-  const { width } = useWindowDimensions();
+  const { width: screenWidth } = useWindowDimensions();
+  const width = containerWidth || screenWidth;
   const isMobile = width < 768;
-  const cardWidth = isMobile ? (width - 48) / 2 : 180;
+  const GAP = 12;
+  const PADDING = isMobile ? 24 : 48; // total horizontal padding (both sides)
+  const columns = isMobile ? 2 : Math.floor((width - PADDING) / (180 + GAP));
+  const cardWidth = (width - PADDING - GAP * (columns - 1)) / columns;
   const cardHeight = cardWidth * 1.5;
   const favorited = isFavorite(movie.id);
-  const watched = isWatched(movie.id);
 
   const [imageLoaded, setImageLoaded] = useState(false);
   const [fadeAnim] = useState(new Animated.Value(0));
@@ -68,11 +71,6 @@ const MovieCard = ({ movie, onPress, index = 0 }) => {
             <View style={styles.ratingBadge}>
               <Text style={styles.ratingText}>⭐ {movie.rating}</Text>
             </View>
-            {watched && (
-              <View style={styles.watchedBadge}>
-                <Text style={styles.watchedText}>✓</Text>
-              </View>
-            )}
           </View>
 
           <TouchableOpacity
@@ -114,8 +112,6 @@ const styles = StyleSheet.create({
   topLeft: { position: 'absolute', top: 8, left: 8, flexDirection: 'row', gap: 4 },
   ratingBadge: { backgroundColor: 'rgba(0,0,0,0.7)', paddingHorizontal: 6, paddingVertical: 3, borderRadius: 6 },
   ratingText: { color: '#f5c518', fontSize: 10, fontWeight: '700' },
-  watchedBadge: { backgroundColor: 'rgba(34,197,94,0.85)', width: 20, height: 20, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
-  watchedText: { color: '#fff', fontSize: 11, fontWeight: '800' },
   favBtn: { position: 'absolute', top: 8, right: 8, width: 32, height: 32, borderRadius: 16, backgroundColor: 'rgba(0,0,0,0.6)', alignItems: 'center', justifyContent: 'center' },
   favIcon: { fontSize: 14 },
   cardFooter: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: 10 },
