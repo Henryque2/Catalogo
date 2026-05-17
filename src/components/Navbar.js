@@ -1,17 +1,12 @@
 import React, { useState, useRef } from 'react';
 import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Animated,
-  useWindowDimensions,
+  View, Text, TextInput, TouchableOpacity,
+  StyleSheet, Animated, useWindowDimensions,
 } from 'react-native';
 import { useFavorites } from '../context/FavoritesContext';
 
 const Navbar = ({ onLogoPress, activeTab, setActiveTab, navigateTo, searchQuery, setSearchQuery }) => {
-  const { favorites } = useFavorites();
+  const { favorites, profile } = useFavorites();
   const { width } = useWindowDimensions();
   const isMobile = width < 768;
   const [searchOpen, setSearchOpen] = useState(false);
@@ -22,12 +17,17 @@ const Navbar = ({ onLogoPress, activeTab, setActiveTab, navigateTo, searchQuery,
     { id: 'home',      label: 'Início',    icon: '🏠' },
     { id: 'favorites', label: 'Favoritos', icon: '❤️', count: favorites.length },
     { id: 'trending',  label: 'Em Alta',   icon: '🔥' },
+    { id: 'profile',   label: 'Perfil',    icon: profile.avatar },
   ];
 
   const handleTabPress = (tabId) => {
     setActiveTab(tabId);
-    navigateTo('home');
-    if (tabId === 'home') onLogoPress();
+    if (tabId === 'profile') {
+      navigateTo('profile');
+    } else {
+      navigateTo('home');
+      if (tabId === 'home') onLogoPress();
+    }
   };
 
   const openSearch = () => {
@@ -50,17 +50,15 @@ const Navbar = ({ onLogoPress, activeTab, setActiveTab, navigateTo, searchQuery,
 
   return (
     <View style={styles.navbar}>
-      {/* Logo */}
       <TouchableOpacity onPress={onLogoPress} style={styles.logoContainer} activeOpacity={0.8}>
         <Text style={styles.logoIcon}>🎬</Text>
         {!isMobile && (
           <Text style={styles.logoText}>
-            MOACIR<Text style={styles.logoAccent}>FILMS</Text>
+            CINE<Text style={styles.logoAccent}>VERSE</Text>
           </Text>
         )}
       </TouchableOpacity>
 
-      {/* Tabs — ficam escondidos quando a busca está aberta */}
       {!searchOpen && (
         <View style={[styles.navItems, isMobile && styles.navItemsMobile]}>
           {navItems.map((item) => (
@@ -85,7 +83,8 @@ const Navbar = ({ onLogoPress, activeTab, setActiveTab, navigateTo, searchQuery,
               ) : (
                 <>
                   <Text style={[styles.navItemText, activeTab === item.id && styles.navItemTextActive]}>
-                    {item.label}{item.count > 0 ? ` (${item.count})` : ''}
+                    {item.id === 'profile' ? `${item.icon} ${item.label}` : item.label}
+                    {item.count > 0 ? ` (${item.count})` : ''}
                   </Text>
                   {activeTab === item.id && <View style={styles.navIndicator} />}
                 </>
@@ -95,7 +94,6 @@ const Navbar = ({ onLogoPress, activeTab, setActiveTab, navigateTo, searchQuery,
         </View>
       )}
 
-      {/* Barra de busca animada + botão lupa */}
       <View style={styles.navRight}>
         {searchOpen && (
           <Animated.View style={[styles.searchInputWrapper, { width: searchWidth, opacity: searchOpacity }]}>
@@ -129,148 +127,35 @@ const Navbar = ({ onLogoPress, activeTab, setActiveTab, navigateTo, searchQuery,
 
 const styles = StyleSheet.create({
   navbar: {
-    backgroundColor: 'rgba(10, 10, 15, 0.98)',
-    paddingHorizontal: 16,
-    height: 60,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.07)',
+    backgroundColor: 'rgba(10,10,15,0.98)',
+    paddingHorizontal: 16, height: 60,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.07)',
   },
-  logoContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    minWidth: 36,
-  },
+  logoContainer: { flexDirection: 'row', alignItems: 'center', gap: 8, minWidth: 36 },
   logoIcon: { fontSize: 20 },
-  logoText: {
-    fontSize: 18,
-    fontWeight: '900',
-    color: '#ffffff',
-    letterSpacing: 2,
-  },
+  logoText: { fontSize: 18, fontWeight: '900', color: '#fff', letterSpacing: 2 },
   logoAccent: { color: '#e50914' },
-  navItems: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    flex: 1,
-    justifyContent: 'center',
-  },
+  navItems: { flexDirection: 'row', alignItems: 'center', gap: 4, flex: 1, justifyContent: 'center' },
   navItemsMobile: { gap: 0 },
-  navItem: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 8,
-    alignItems: 'center',
-    position: 'relative',
-  },
-  navItemActive: {
-    backgroundColor: 'rgba(229, 9, 20, 0.12)',
-  },
-  navItemText: {
-    color: 'rgba(255,255,255,0.55)',
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  navItemTextActive: {
-    color: '#ffffff',
-    fontWeight: '700',
-  },
-  navIndicator: {
-    position: 'absolute',
-    bottom: 2,
-    width: 20,
-    height: 2,
-    backgroundColor: '#e50914',
-    borderRadius: 2,
-  },
-  mobileTabInner: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative',
-    paddingHorizontal: 2,
-    paddingBottom: 2,
-  },
-  mobileTabIcon: {
-    fontSize: 20,
-    opacity: 0.6,
-  },
-  mobileTabIconActive: {
-    opacity: 1,
-  },
-  mobileIndicator: {
-    position: 'absolute',
-    bottom: -2,
-    width: 16,
-    height: 2,
-    backgroundColor: '#e50914',
-    borderRadius: 2,
-  },
-  countBadge: {
-    position: 'absolute',
-    top: -4,
-    right: -6,
-    backgroundColor: '#e50914',
-    borderRadius: 8,
-    minWidth: 15,
-    height: 15,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 3,
-  },
-  countBadgeText: {
-    color: '#fff',
-    fontSize: 8,
-    fontWeight: '800',
-  },
-  navRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  searchInputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.12)',
-    paddingHorizontal: 12,
-    height: 36,
-    overflow: 'hidden',
-  },
-  searchInput: {
-    flex: 1,
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '500',
-    height: 36,
-  },
-  clearBtn: {
-    padding: 4,
-    marginLeft: 4,
-  },
-  clearBtnText: {
-    color: 'rgba(255,255,255,0.4)',
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  searchBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  searchBtnActive: {
-    backgroundColor: 'rgba(229,9,20,0.2)',
-    borderColor: 'rgba(229,9,20,0.3)',
-    borderWidth: 1,
-  },
+  navItem: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8, alignItems: 'center', position: 'relative' },
+  navItemActive: { backgroundColor: 'rgba(229,9,20,0.12)' },
+  navItemText: { color: 'rgba(255,255,255,0.55)', fontSize: 14, fontWeight: '500' },
+  navItemTextActive: { color: '#fff', fontWeight: '700' },
+  navIndicator: { position: 'absolute', bottom: 2, width: 20, height: 2, backgroundColor: '#e50914', borderRadius: 2 },
+  mobileTabInner: { alignItems: 'center', justifyContent: 'center', position: 'relative', paddingHorizontal: 2, paddingBottom: 2 },
+  mobileTabIcon: { fontSize: 20, opacity: 0.6 },
+  mobileTabIconActive: { opacity: 1 },
+  mobileIndicator: { position: 'absolute', bottom: -2, width: 16, height: 2, backgroundColor: '#e50914', borderRadius: 2 },
+  countBadge: { position: 'absolute', top: -4, right: -6, backgroundColor: '#e50914', borderRadius: 8, minWidth: 15, height: 15, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 3 },
+  countBadgeText: { color: '#fff', fontSize: 8, fontWeight: '800' },
+  navRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  searchInputWrapper: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', paddingHorizontal: 12, height: 36, overflow: 'hidden' },
+  searchInput: { flex: 1, color: '#fff', fontSize: 14, fontWeight: '500', height: 36 },
+  clearBtn: { padding: 4, marginLeft: 4 },
+  clearBtnText: { color: 'rgba(255,255,255,0.4)', fontSize: 12, fontWeight: '700' },
+  searchBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.08)', alignItems: 'center', justifyContent: 'center' },
+  searchBtnActive: { backgroundColor: 'rgba(229,9,20,0.2)', borderColor: 'rgba(229,9,20,0.3)', borderWidth: 1 },
   searchIcon: { fontSize: 15 },
 });
 

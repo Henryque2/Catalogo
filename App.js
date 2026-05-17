@@ -2,28 +2,29 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Animated, Platform, View, BackHandler } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FavoritesProvider } from './src/context/FavoritesContext';
+import { FavoritesProvider, useFavorites } from './src/context/FavoritesContext';
 import { ScrollProvider, useScrollContext, NAVBAR_CONTENT_HEIGHT } from './src/context/ScrollContext';
+import { TransitionProvider, useTransition } from './src/context/TransitionContext';
 import HomeScreen from './src/screens/HomeScreen';
-import DetailScreen from './src/screens/DetailScreen';
+import ProfileScreen from './src/screens/ProfileScreen';
 import Navbar from './src/components/Navbar';
 import Footer from './src/components/Footer';
 import VideoPlayer from './src/components/VideoPlayer';
+import TransitionOverlay from './src/components/TransitionOverlay';
 
 function AppInner() {
   const [currentScreen, setCurrentScreen] = useState('home');
-  const [selectedMovie, setSelectedMovie] = useState(null);
   const [activeTab, setActiveTab] = useState('home');
   const [searchQuery, setSearchQuery] = useState('');
   const [playerVisible, setPlayerVisible] = useState(false);
   const [playerMovie, setPlayerMovie] = useState(null);
 
   const insets = useSafeAreaInsets();
+  const { theme, loaded } = useFavorites();
+  const { visible: transitionVisible, collapse, phase } = useTransition();
   const {
-    navbarTranslate,
-    footerTranslate,
-    contentPaddingTop,
-    contentPaddingBottom,
+    navbarTranslate, footerTranslate,
+    contentPaddingTop, contentPaddingBottom,
     setNavbarTotalHeight,
   } = useScrollContext();
 
@@ -32,58 +33,47 @@ function AppInner() {
     setNavbarTotalHeight(totalHeight);
   }, [insets.top]);
 
-  // Botão voltar nativo do Android
+  // Botão voltar nativo Android
   useEffect(() => {
     if (Platform.OS !== 'android') return;
-
     const onBackPress = () => {
-      // Se o player estiver aberto, fecha ele
-      if (playerVisible) {
-        closePlayer();
-        return true; // consome o evento
-      }
-      // Se estiver na tela de detalhes, volta para home
-      if (currentScreen === 'detail') {
-        goHome();
-        return true; // consome o evento
-      }
-      // Se estiver na home, deixa o Android fechar o app normalmente
+      if (playerVisible) { closePlayer(); return true; }
+      // Se o overlay de transição está aberto, fecha com animação
+      if (transitionVisible) { collapse(() => setCurrentScreen('home')); return true; }
+      if (currentScreen === 'profile') { goHome(); return true; }
       return false;
     };
-
-    const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
-    return () => subscription.remove();
-  }, [currentScreen, playerVisible]);
+    const sub = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+    return () => sub.remove();
+  }, [currentScreen, playerVisible, transitionVisible]);
 
   const navigateTo = (screen, movie = null) => {
-    setCurrentScreen(screen);
-    if (movie) setSelectedMovie(movie);
+    // DetailScreen agora é gerenciado pelo TransitionOverlay
+    // Só navega para outras telas aqui
+    if (screen !== 'detail') setCurrentScreen(screen);
   };
 
   const goHome = () => {
     setCurrentScreen('home');
     setActiveTab('home');
-    setSelectedMovie(null);
     setSearchQuery('');
   };
 
-  const openPlayer = (movie) => {
-    setPlayerMovie(movie);
-    setPlayerVisible(true);
-  };
+  const openPlayer = (movie) => { setPlayerMovie(movie); setPlayerVisible(true); };
+  const closePlayer = () => { setPlayerVisible(false); setPlayerMovie(null); };
 
-  const closePlayer = () => {
-    setPlayerVisible(false);
-    setPlayerMovie(null);
-  };
+  const isLight = theme === 'light';
+  const bgColor = isLight ? '#f0f0f5' : '#0a0a0f';
+
+  if (!loaded) return <View style={{ flex: 1, backgroundColor: '#0a0a0f' }} />;
 
   return (
-    <View style={styles.root}>
-      <StatusBar style="light" backgroundColor="#0a0a0f" />
+    <View style={[styles.root, { backgroundColor: bgColor }]}>
+      <StatusBar style={isLight ? 'dark' : 'light'} backgroundColor={isLight ? '#fff' : '#0a0a0f'} />
 
-      <Animated.View style={styles.container}>
+      <Animated.View style={[styles.container, { backgroundColor: bgColor }]}>
         <Animated.View style={[styles.navbarWrapper, { transform: [{ translateY: navbarTranslate }] }]}>
-          <View style={{ height: insets.top, backgroundColor: 'rgba(10,10,15,0.98)' }} />
+          <View style={{ height: insets.top, backgroundColor: isLight ? 'rgba(255,255,255,0.98)' : 'rgba(10,10,15,0.98)' }} />
           <Navbar
             onLogoPress={goHome}
             activeTab={activeTab}
@@ -103,12 +93,8 @@ function AppInner() {
               onPlayMovie={openPlayer}
             />
           )}
-          {currentScreen === 'detail' && selectedMovie && (
-            <DetailScreen
-              movie={selectedMovie}
-              onBack={goHome}
-              onPlayMovie={openPlayer}
-            />
+          {currentScreen === 'profile' && (
+            <ProfileScreen navigateTo={navigateTo} />
           )}
         </Animated.View>
 
@@ -117,6 +103,9 @@ function AppInner() {
           <View style={{ height: insets.bottom, backgroundColor: 'rgba(5,5,10,0.98)' }} />
         </Animated.View>
       </Animated.View>
+
+      {/* Overlay da transição expand — fica acima de tudo */}
+      <TransitionOverlay onPlayMovie={openPlayer} />
 
       {playerMovie && (
         <VideoPlayer
@@ -134,28 +123,26 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <FavoritesProvider>
-        <ScrollProvider>
-          <AppInner />
-        </ScrollProvider>
+        <TransitionProvider>
+          <ScrollProvider>
+            <AppInner />
+          </ScrollProvider>
+        </TransitionProvider>
       </FavoritesProvider>
     </SafeAreaProvider>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#0a0a0f' },
-  container: { flex: 1, backgroundColor: '#0a0a0f' },
+  root: { flex: 1 },
+  container: { flex: 1 },
   navbarWrapper: {
-    position: 'absolute',
-    top: 0, left: 0, right: 0,
-    zIndex: 100,
+    position: 'absolute', top: 0, left: 0, right: 0, zIndex: 100,
     ...Platform.select({ web: { position: 'fixed' } }),
   },
   content: { flex: 1 },
   footerWrapper: {
-    position: 'absolute',
-    bottom: 0, left: 0, right: 0,
-    zIndex: 100,
+    position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 100,
     ...Platform.select({ web: { position: 'fixed' } }),
   },
 });

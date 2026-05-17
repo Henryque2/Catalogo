@@ -9,7 +9,7 @@ const Footer = () => {
     // Mobile: ultra-compact single line
     return (
       <View style={styles.footerMobile}>
-        <Text style={styles.footerMobileText}>🎬 MoacirFilms · © 2026</Text>
+        <Text style={styles.footerMobileText}>🎬 CineVerse · © 2024</Text>
       </View>
     );
   }
@@ -17,9 +17,9 @@ const Footer = () => {
   return (
     <View style={styles.footer}>
       <Text style={styles.footerLogo}>
-        🎬 MOACIR<Text style={styles.footerLogoAccent}>FILMS</Text>
+        🎬 CINE<Text style={styles.footerLogoAccent}>VERSE</Text>
       </Text>
-      <Text style={styles.footerCopy}>© 2026 MoacirFilms · Que os filmes estejam com você</Text>
+      <Text style={styles.footerCopy}>© 2024 CineVerse · Seu universo cinematográfico</Text>
       <View style={styles.footerLinks}>
         <Text style={styles.footerLink}>Sobre</Text>
         <Text style={styles.footerDot}>·</Text>
