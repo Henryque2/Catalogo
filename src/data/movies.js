@@ -230,7 +230,7 @@ export const MOVIES = [
     director: 'Jared Hess',
     cast: ['Jason Momoa', 'Emma Myers', 'Jack Black', 'Jennifer Coolidge', 'Danielle Brooks', 'Sebastian Eugene Hansen'],
     synopsis:
-      'As aventuras dos nordestinos João Grilo, um sertanejo pobre e mentiroso, e Chicó, o mais covarde dos homens. A dupla luta para sobreviver aplicando golpes no pequeno vilarejo de Taperoá, no sertão da Paraíba - nem o temido cangaceiro Severino de Aracaju escapa das artimanhas de João Grilo e Chicó. A dupla tem a chance de se redimir com a aparição de Nossa Senhora.',
+      'Um portal misterioso atrai quatro desajustados para o Overworld, uma terra das maravilhas bizarras e cúbicas que prospera com a imaginação. Para voltar para casa, eles têm que dominar o terreno enquanto embarcam em uma missão mágica com um construtor inesperado chamado Steve.',
     image: 'https://m.media-amazon.com/images/M/MV5BYzFjMzNjOTktNDBlNy00YWZhLWExYTctZDcxNDA4OWVhOTJjXkEyXkFqcGc@._V1_.jpg',
     backdrop: 'https://recreio.com.br/wp-content/uploads/2025/03/um-filme-minecraft-poster-capa.jpg',
     color: '#13a12f',
