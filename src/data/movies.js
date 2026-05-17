@@ -234,7 +234,7 @@ export const MOVIES = [
     image: 'https://m.media-amazon.com/images/M/MV5BYzFjMzNjOTktNDBlNy00YWZhLWExYTctZDcxNDA4OWVhOTJjXkEyXkFqcGc@._V1_.jpg',
     backdrop: 'https://recreio.com.br/wp-content/uploads/2025/03/um-filme-minecraft-poster-capa.jpg',
     color: '#13a12f',
-    featured: false,
+    featured: true,
     videoUrl: 'https://youtu.be/3IVPHxs4NoM?si=QF4lvrPG93PCt_bU',
   },
 ];
